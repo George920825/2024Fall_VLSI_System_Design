@@ -1,0 +1,14 @@
+# 初始化
+addi x1, x0, 0       # x1 = 0 (F(0))
+addi x2, x0, 1       # x2 = 1 (F(1))
+addi x4, x0, 2       # x4 = 2 (starting from F(2))
+addi x5, x0, 48	     # x5 = 48
+
+fib_loop:
+    add x3, x1, x2    # x3 = x1 + x2 (F(n) = F(n-1) + F(n-2))
+    addi x1, x2, 0    # x1 = x2 (move F(n-1) to F(n-2) for next iteration)
+    addi x2, x3, 0    # x2 = x3 (move F(n) to F(n-1) for next iteration)
+    addi x4, x4, 1    # x4 = x4 + 1 (increment counter)
+    blt x4, x5, fib_loop # if x4 < 48, continue loop (repeat 47 times)
+
+# At this point, F(47) is stored in x2.

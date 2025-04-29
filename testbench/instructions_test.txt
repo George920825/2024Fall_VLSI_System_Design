@@ -1,0 +1,78 @@
+start:
+    # LUI 和 AUIPC 測試
+    LUI   x1, 0x12345         # x1 = 0x12345000
+    AUIPC x2, 0x12345         # x2 = PC + 0x12345000
+
+    # JAL 和 JALR 測試
+    JAL   x3, jump1           # 跳轉並保存地址到 x3
+	ORI	  x20, x20, 1	      # 如果沒跳，x20 = 1
+jump1:
+    JALR  x4, x3, 3           # x3 = x2 + 12, 並跳轉
+	ORI	  x21, x21, 1		  # 如果沒跳，x21 = 1
+
+    # 分支指令測試
+    ADDI  x5, x5, 5
+    ADDI  x6, x6, 6
+    BEQ   x5, x5, branch1     # 如果 x5 == x6，跳轉
+	ORI	  x22, x22, 1		  # 如果沒跳，x22 = 1
+branch1:
+    BNE   x5, x6, branch2     # 如果 x5 != x6，跳轉
+	ORI	  x23, x23, 1		  # 如果沒跳，x23 = 1
+branch2:
+    BLT   x5, x6, branch3     # 如果 x5 < x6，跳轉
+	ORI	  x24, x24, 1		  # 如果沒跳，x24 = 1
+branch3: 
+	BGE   x6, x5, branch4     # 如果 x6 >= x5，跳轉
+	ORI	  x25, x25, 1		  # 如果沒跳，x25 = 1
+branch4:    
+	BLTU  x5, x6, branch5     # 如果 x5 < x6 (無符號)，跳轉
+	ORI	  x26, x26, 1		  # 如果沒跳，x26 = 1
+branch5:     
+	BGEU  x6, x5, branch6     # 如果 x6 >= x5 (無符號)，跳轉
+	ORI	  x27, x27, 1		  # 如果沒跳，x27 = 1
+branch6: 
+
+	ADDI  x7, x7, 0xFED
+    # 存儲指令測試
+	SW    x7, 0(x0)           # 存儲字
+    SH    x7, 0(x0)           # 存儲半字	
+    SB    x7, 0(x0)           # 存儲字節
+
+    LB    x8, 0(x0)           # 讀取字節
+	ADDI  x8, x8, 1			  # to make stall[0] = 1
+	ADDI   x1, x0, 1
+    LH    x8, 0(x0)           # 讀取半字
+	ADDI   x1, x0, 2
+	ADDI   x1, x0, 3
+    LW    x8, 0(x0)           # 讀取字
+	ADDI   x1, x0, 4
+	ADDI   x1, x0, 5
+    LBU   x8, 0(x0)           # 讀取半字節(unsigned)
+	ADDI   x1, x0, 6
+	ADDI   x1, x0, 7
+    LHU   x8, 0(x0)           # 讀取半字(unsigned)
+    
+	# OP-IMM 指令測試
+	ADDI  x14, x0, 0
+    ADDI  x10, x14, 10        # x10 = x14 + 10
+    SLTI  x11, x14, 10        # x11 = (x14 < 10) ? 1 : 0
+    SLTIU x12, x14, 10        # x12 = (x14 < 10 unsigned) ? 1 : 0
+    XORI  x13, x14, 0xFF      # x13 = x14 ^ 0xFF
+    ORI   x14, x14, 0x01      # x14 = x14 | 0x01
+    ANDI  x15, x14, 0x0F      # x15 = x15 & 0x0F
+    SLLI  x16, x14, 1         # x16 = x14 << 1
+    SRLI  x17, x14, 1         # x17 = x14 >> 1
+    SRAI  x18, x14, 1         # x18 = x14 算術右移 1
+    # OP 指令測試
+    ADDI  x14, x0, 2          # x14 = 2
+    ADDI  x15, x0, 3          # x15 = 3
+    ADD   x10, x14, x15       # x10 = x14 + x15
+    SUB   x11, x15, x14       # x11 = x15 - x14
+    SLL   x12, x14, x15       # x12 = x14 << x15
+    SLT   x13, x14, x15       # x13 = (x14 < x15) ? 1 : 0
+    SLTU  x14, x14, x15       # x14 = (x14 < x15 unsigned) ? 1 : 0
+    XOR   x15, x14, x15       # x15 = x14 ^ x15
+    SRL   x16, x15, x14       # x16 = x15 >> x14
+    SRA   x17, x15, x14       # x17 = x15 算術右移 x14
+    OR    x18, x14, x15       # x18 = x14 | x15
+    AND   x19, x18, x15       # x19 = x14 & x15

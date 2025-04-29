@@ -1,0 +1,67 @@
+# 初始化
+addi x10, x0, 0        # x10 = array (基址)
+addi x11, x0, 7        # x11 = n = 7 (數組長度)
+addi x12, x0, 0        # x12 = i = 0 (外層循環計數器)
+
+addi  x1, x0, 7
+SW    x1, 0(x0)
+addi  x1, x0, 5
+SW    x1, 1(x0)
+addi  x1, x0, 3
+SW    x1, 2(x0)
+addi  x1, x0, 4
+SW    x1, 3(x0)
+addi  x1, x0, 6
+SW    x1, 4(x0)
+addi  x1, x0, 2
+SW    x1, 5(x0)
+addi  x1, x0, 1
+SW    x1, 6(x0)
+
+
+outer_loop:
+    # 如果 i >= n-1，結束排序
+    addi x16, x11, -1       # x16 = n - 1
+    bge x12, x16, done      # 如果 i >= n - 1，跳轉到 done
+
+    # 初始化內層循環計數器 j = 0
+    addi x13, x0, 0    		# x13 = 0
+
+inner_loop:
+    # 如果 j >= n-1-i，跳回 outer_continue
+    sub x16, x11, x12  		# x16 = n - i
+    addi x16, x16, -1  		# x16 = n - i - 1
+    bge x13, x16, outer_continue
+
+    # 加載 array[j] 到 temp1
+    add x14, x10, x13  		# x14 = array + j
+    lw x14, 0(x14)     		# x14 = array[j] (假設每個元素是 1 byte)
+	
+    # 加載 array[j+1] 到 temp2
+    addi x16, x13, 1   		# x16 = j + 1
+    add x15, x10, x16  		# x15 = array + (j + 1)
+    lw x15, 0(x15)    		# x15 = array[j+1]
+	
+	addi x1, x0, 1  		#prevent double stall
+	
+    # 比較 array[j] 和 array[j+1]
+    blt x14, x15, skip_swap # 如果 array[j] < array[j+1]，跳過交換
+
+    # 交換 array[j] 和 array[j+1]
+    add x17, x10, x13       # x17 = array + j
+    sw x15, 0(x17)          # array[j] = array[j+1]
+
+    addi x16, x13, 1        # x16 = j + 1
+    add x17, x10, x16       # x17 = array + (j + 1)
+    sw x14, 0(x17)          # array[j+1] = array[j]
+
+skip_swap:
+    # j = j + 1
+    addi x13, x13, 1
+    jal x5, inner_loop 		# 跳轉回 inner_loop 起點
+	
+outer_continue:
+    addi x12, x12, 1   		# i = i + 1
+    jal x5, outer_loop 		# 跳轉回 outer_loop 起點
+	
+done:
